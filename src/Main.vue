@@ -49,13 +49,10 @@ const channels = reactive({
         this.active = channel;
         
         await loadVideos(); // need to load the videos so videoContainersRef actually has something
-        console.log(allVideos.value);
         await nextTick(); // allow for DOM to update
-        console.log(videoContainers);
         
         scrollContainer = scrollContainerRef.value;
         videoContainers = videoContainersRef.value; //  now get the videoContainers
-        console.log(videoContainers);
         
         scrollContainer.scrollTop = 0;
         currentVideoIndex = 0;
@@ -107,7 +104,6 @@ async function loadVideos(){
     await nextTick();
     const response = await fetch(channels.active.url);
     const json = await response.json();
-    console.log(json);
 
     const all = json.category.media.map(v => {
         return {
