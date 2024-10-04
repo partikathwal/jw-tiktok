@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+img,
+video {
+  display: revert;
+  vertical-align: revert;
+}
+
+img,
+video {
+  max-width: revert;
+  height: revert;
+}
+
+.h-dscreen {
+  height: 100dvh;
+}
