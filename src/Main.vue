@@ -2,11 +2,15 @@
     <div ref="scrollContainerRef" class="h-dscreen bg-white overflow-x-hidden overflow-y-scroll snap-y snap-mandatory ">
         <VideoContainer ref="videoContainersRef" v-for="video in allVideos" :key="video.url" :video="video"></VideoContainer>
     </div>
-    <div class="absolute top-0 left-0 z-50 text-white cursor-pointer p-6 text-2xl" @click="openMenu()">☰</div>
+    <div class="absolute top-0 left-0 z-50 text-white cursor-pointer p-6 text-2xl" @click="openMenu()">
+        <MenuIcon />
+    </div>
     <div :class="{'left-0': channels.visible, 'left-[-100%]': !channels.visible}" class="absolute top-0 z-50 text-white flex flex-col h-dscreen transition-all">
         <div class="text-lg font-bold flex justify-between bg-black">
             <span class="p-4">JW TIKTOK</span>
-            <span class="p-4" @click="closeMenu()">✖</span>
+            <span class="p-4 cursor-pointer" @click="closeMenu()">
+                <CloseIcon />
+            </span>
         </div>
         <hr>
         <div class="flex-1 cursor-pointer text-lg p-4 border-b border-white bg-black bg-opacity-80 flex items-center" v-for="channel in channels.list" @click.stop="channels.load(channel)">
@@ -17,8 +21,11 @@
 
 <script setup>
 
-import VideoContainer from './VideoContainer.vue';
 import { ref, reactive, onMounted, nextTick } from 'vue';
+import VideoContainer from './VideoContainer.vue';
+
+import MenuIcon from 'vue-material-design-icons/Menu.vue';
+import CloseIcon from 'vue-material-design-icons/Close.vue';
 
 function openMenu(){
     channels.visible = true;

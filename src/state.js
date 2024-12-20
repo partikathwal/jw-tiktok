@@ -1,7 +1,8 @@
 import { reactive } from "vue";
 
 const state = reactive({
-    muted: true
+    muted: true,
+    loop: true,
 });
 
 export { state };

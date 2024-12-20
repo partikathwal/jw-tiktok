@@ -1,21 +1,28 @@
 <template>
     <div ref="elementRef" class="bg-black h-dscreen relative snap-always snap-start" @click="togglePause()">
         <canvas ref="canvasRef"></canvas>
-        <video class="hidden" ref="videoRef" :data-src="props.video.src" loop></video>
-        <div v-if="controlsVisible" class="absolute top-0 z-30 w-full h-full p-4 flex justify-center items-center text-8xl">
-            ⏸
+        <video class="hidden" ref="videoRef" :data-src="props.video.src" :loop="loop" :muted="muted"></video>
+        <div v-if="controlsVisible" class="absolute top-0 z-30 w-full h-full p-4 flex justify-center items-center text-8xl text-white">
+            <PauseIcon :size="128" />
         </div>
         <div v-if="isLoading" class="absolute top-0 z-40 w-full h-full flex justify-center items-center">
             <div class="animate-spin" style="width: 50px; height: 50px; border-left: 6px solid white; border-radius: 100%;"></div>
         </div>
-        <div class="absolute top-0 z-50 w-full h-full p-4 flex flex-col justify-end items-start">
+        <div class="absolute top-0 z-50 w-full h-full p-4 flex flex-col justify-end items-start text-white">
             <div class="w-full flex items-baseline justify-between">
-                <div class="flex items-baseline gap-2 text-white font-bold">
-                    <span>▶</span>
-                    <a class="py-4 w-2/3" :href="props.video.url" target="_blank">{{ props.video.title }}</a>
-                </div>
-                <div @click.stop="toggleMute()" class="p-4 text-xl cursor-pointer">
-                    {{ muted ? '🔇' :  '🔊' }}
+                <a class="flex items-center gap-2 font-bold" :href="props.video.url" target="_blank">
+                    <OpenInNewIcon />
+                    <span class="py-4 w-2/3">{{ props.video.title }}</span>
+                </a>
+                <div class="text-xl flex flex-col">
+                    <div @click.stop="muted = !muted" class="p-4">
+                        <VolumeOffIcon v-if="muted" />
+                        <VolumeHighIcon v-if="!muted" />
+                    </div>
+                    <div @click.stop="loop = !loop" class="p-4">
+                        <RepeatIcon v-if="loop" />
+                        <RepeatOffIcon v-if="!loop" />
+                    </div>
                 </div>
             </div>
             <input @click.stop ref="seekerRef" class="w-full" :class="{ 'invisible': !controlsVisible }" type="range">
@@ -26,8 +33,15 @@
 
 <script setup>
 
-import { onMounted, ref, watch, toRefs, computed } from 'vue';
+import { onMounted, ref, toRefs, computed } from 'vue';
 import { state } from "./state.js";
+
+import PauseIcon from 'vue-material-design-icons/Pause.vue';
+import VolumeHighIcon from 'vue-material-design-icons/VolumeHigh.vue';
+import VolumeOffIcon from 'vue-material-design-icons/VolumeOff.vue';
+import RepeatIcon from 'vue-material-design-icons/Repeat.vue';
+import RepeatOffIcon from 'vue-material-design-icons/RepeatOff.vue';
+import OpenInNewIcon from 'vue-material-design-icons/OpenInNew.vue';
 
 const props = defineProps(['video']);
 
@@ -47,11 +61,7 @@ const controlsVisible = ref(false);
 
 const isLoading = ref(false);
 
-const { muted } = toRefs(state);
-
-watch(muted, () => {
-    video.muted = muted.value;
-})
+const { muted, loop } = toRefs(state);
 
 /** @type {HTMLCanvasElement} */
 let canvas;
@@ -79,8 +89,6 @@ onMounted(() => {
             updateCanvas(now, metadata, true);
         });
     })
-
-    video.muted = muted.value;
 })
 
 let videoFrameCallbackHandle;
@@ -101,7 +109,6 @@ async function play(fromBeginning){
     await video.play();
     clearTimeout(loadingTimeout);
     isLoading.value = false;
-    console.log("playing " + getShortTitle());
     videoFrameCallbackHandle = video.requestVideoFrameCallback(updateCanvas);
 }
 
@@ -126,11 +133,6 @@ function togglePause(){
 }
 
 defineExpose({play, stop, load, unload, getElementRef});
-
-
-function toggleMute(){
-    muted.value = !muted.value;
-}
 
 function load(){
     if(!video.src){
